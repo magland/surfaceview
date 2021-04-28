@@ -1,7 +1,8 @@
+import { Button } from '@material-ui/core'
 import { DropzoneArea } from 'material-ui-dropzone'
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import { FunctionComponent } from "react"
-import getFolderId from './google/getFolderId'
+import getFolderId from '../google/getFolderId'
 
 type Props = {
     folderName: string
@@ -28,20 +29,34 @@ const uploadFile = async (gapi: any, folderName: string, file: File) => {
 }
 
 const UploadFile: FunctionComponent<Props> = ({ folderName, gapi, onUploaded }) => {
+    const [uploadAreaVisible, setUploadAreaVisible] = useState<boolean>(false)
     const handleChange = useCallback((files: File[]) => {
         ;(async () => {
             for (let file of files) {
                 const res = await uploadFile(gapi, folderName, file)
                 if (res.ok) onUploaded()
             }
+            if (files.length > 0) {
+                setUploadAreaVisible(false)
+            }
         })()
     }, [onUploaded, gapi, folderName])
+    const handleClick = useCallback(() => {
+        setUploadAreaVisible(true)
+    }, [])
     return (
         <div>
-            <DropzoneArea
-                onChange={handleChange}
-                maxFileSize={1000 * 1000 * 1000}
-            />
+            {
+                uploadAreaVisible ? (
+                    <DropzoneArea
+                        onChange={handleChange}
+                        maxFileSize={1000 * 1000 * 1000}
+                    />
+                ) : (
+                    <Button onClick={handleClick}>Upload a file from your computer</Button>
+                )
+            }
+            
         </div>
     )
 }

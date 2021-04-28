@@ -12,8 +12,8 @@ const useGoogleApi = () => {
              */
 
             // Client ID and API key from the Developer Console
-            var CLIENT_ID = '985276542804-hf5arsrefnpbf5hqctnvnj30jp9qni0i.apps.googleusercontent.com'
-            var API_KEY = 'AIzaSyAJ1INcVdkddo-yLlnmYloUuVBRDavntwo'
+            var CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID
+            var API_KEY = process.env.REACT_APP_GOOGLE_API_KEY
 
             // Array of API discovery doc URLs for APIs used by the quickstart
             var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];

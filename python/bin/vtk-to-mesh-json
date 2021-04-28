@@ -1,0 +1,13 @@
+#!/usr/bin/env python3
+
+import click
+import surfaceview
+
+@click.command('vtk-to-json')
+@click.argument('vtk_path')
+@click.argument('json_path')
+def cli(vtk_path: str, json_path: str):
+    surfaceview.vtk_to_mesh_json(vtk_path, json_path)
+
+if __name__ == '__main__':
+    cli()

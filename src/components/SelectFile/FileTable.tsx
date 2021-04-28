@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react'
 import { FunctionComponent } from "react"
-import GoogleDriveFile from './google/GoogleDriveFile'
-import Hyperlink from './Hyperlink'
-import NiceTable from './NiceTable/NiceTable'
+import GoogleDriveFile from '../google/GoogleDriveFile'
+import Hyperlink from '../common/Hyperlink'
+import NiceTable from '../common/NiceTable/NiceTable'
 
 type Props = {
     files: GoogleDriveFile[]

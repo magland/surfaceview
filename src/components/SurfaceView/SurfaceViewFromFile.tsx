@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { FunctionComponent } from "react"
-import GoogleDriveFile from './google/GoogleDriveFile'
-import useGoogleApi from './google/useGoogleApi'
+import GoogleDriveFile from '../google/GoogleDriveFile'
+import useGoogleApi from '../google/useGoogleApi'
 import SurfaceView from './SurfaceView'
 
 type Props = {

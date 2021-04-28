@@ -1,0 +1,7 @@
+projectName: surfaceview
+projectVersion: 0.1.0
+projectAuthor: Jeremy Magland
+projectAuthorEmail: jmagland@flatironinstitute.org
+projectDescription: Web app for viewing surfaces in 3D with integration with google drive
+projectUrl: https://github.com/magland/surfaceview
+projectBugTrackerUrl: https://github.com/magland/surfaceview/issues
