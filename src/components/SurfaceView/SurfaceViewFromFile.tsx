@@ -14,15 +14,10 @@ const SurfaceViewFromFile: FunctionComponent<Props> = ({file}) => {
 
     useEffect(() => {
         if (!gapi) return
-        console.log('----', file)
         gapi.client.drive.files.get({fileId: file.id, alt: 'media'}).then((resp: any) => {
             setSurfaceData(JSON.parse(resp.body))
         })
     }, [gapi, file])
-
-    useEffect(() => {
-        console.log('---', surfaceData)
-    }, [surfaceData])
 
     return (
         <span>

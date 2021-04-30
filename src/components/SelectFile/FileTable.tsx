@@ -18,7 +18,7 @@ const FileTable: FunctionComponent<Props> = ({files, onSelectFile}) => {
     ]), [])
     const rows = useMemo(() => (
         files.map(file => ({
-            key: file.name,
+            key: file.id,
             columnValues: {
                 name: {
                     text: file.name,

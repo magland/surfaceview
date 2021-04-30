@@ -36,9 +36,14 @@ const getMeshGeometry = (surfaceData: SurfaceData) => {
     const colors = [];
 
     // seems to be a problem if we don't divide by a large number ???
-    const x = surfaceData.vertices.map(v => (v[0] / 100))
-    const y = surfaceData.vertices.map(v => (v[1] / 100))
-    const z = surfaceData.vertices.map(v => (v[2] / 100))
+    const {mean: xAbsMean} =  stats(surfaceData.vertices.map(v => (Math.abs(v[0]))))
+    const {mean: yAbsMean} =  stats(surfaceData.vertices.map(v => (Math.abs(v[1]))))
+    const {mean: zAbsMean} =  stats(surfaceData.vertices.map(v => (Math.abs(v[2]))))
+    const factor = 100 / ((xAbsMean + yAbsMean + zAbsMean) / 3)
+
+    const x = surfaceData.vertices.map(v => (v[0] * factor))
+    const y = surfaceData.vertices.map(v => (v[1] * factor))
+    const z = surfaceData.vertices.map(v => (v[2] * factor))
     const {min: xmin, max: xmax} = stats(x)
     const {min: ymin, max: ymax} = stats(y)
     // const {min: zmin, max: zmax} = stats(z)
@@ -52,8 +57,12 @@ const getMeshGeometry = (surfaceData: SurfaceData) => {
         colors.push(r, g, 1)
     }
 
-    for (let iface of surfaceData.ifaces) {
-        indices.push(surfaceData.faces[iface - 1], surfaceData.faces[iface -1 + 1], surfaceData.faces[iface - 1 + 2])
+    for (let j = 0; j < surfaceData.ifaces.length; j++) {
+        const a = surfaceData.ifaces[j] - 1
+        const b =(j + 1 < surfaceData.ifaces.length) ? surfaceData.ifaces[j + 1] - 1 : x.length + 1
+        for (let k = 3; k <= b - a; k++) {
+            indices.push(surfaceData.faces[a], surfaceData.faces[a + k - 2], surfaceData.faces[a + k - 1])
+        }
     }
 
     geometry.setIndex( indices );
@@ -86,7 +95,7 @@ const SurfaceWidget: FunctionComponent<Props> = ({surfaceData, width, height, op
         var renderer = new THREE.WebGLRenderer();
         renderer.setSize( width, height );
 
-        const camera = new THREE.PerspectiveCamera( 45, width / height, 1, 1000 );
+        const camera = new THREE.PerspectiveCamera( 45, width / height, 1, 100000 );
 
         while (container.firstChild) container.removeChild(container.firstChild)
         container.appendChild(renderer.domElement)
