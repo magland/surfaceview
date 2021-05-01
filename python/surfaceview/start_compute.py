@@ -60,15 +60,15 @@ class Task:
             msg['error'] = str(self._job.result.error)
         elif self._status == 'finished':
             return_value_serialized = _serialize(self._job.result.return_value)
-            result = {
-                'returnValueSerialized': return_value_serialized
-            }
-            _upload_to_google_cloud(f'task_results/{self._task_hash}', json.dumps(result).encode('utf-8'))
+            _upload_to_google_cloud(f'task_results/{_pathify_hash(self._task_hash)}', json.dumps(return_value_serialized).encode('utf-8'))
         self._client.publish('task-status', json.dumps(msg).encode('utf-8'), qos=1)
+
+def _pathify_hash(x: str):
+    return f'{x[0]}{x[1]}/{x[2]}{x[3]}/{x[4]}{x[5]}/{x}'
 
 def _upload_to_google_cloud(destination_name: str, data: bytes):
     storage_client = storage.Client()
-    bucket = storage_client.bucket(os.environ['GOOGLE_BUCKET'])
+    bucket = storage_client.bucket(os.environ['GOOGLE_BUCKET_NAME'])
     blob = bucket.blob(destination_name)
 
     blob.upload_from_string(data)
@@ -93,6 +93,13 @@ class TaskManager:
                 del self._tasks[task_hash]
 
 def start_compute():
+    if os.getenv('GOOGLE_BUCKET_NAME') is None:
+        raise Exception(f'Environment variable not set: GOOGLE_BUCKET_NAME')
+    if os.getenv('GOOGLE_APPLICATION_CREDENTIALS') is None:
+        raise Exception(f'Environment variable not set: GOOGLE_APPLICATION_CREDENTIALS')
+    if os.getenv('ABLY_API_KEY') is None:
+        raise Exception(f'Environment variable not set: ABLY_API_KEY')
+    
     def on_connect(client, userdata, flags, rc):
         print('Connected')
         client.subscribe("task-queue")
@@ -149,9 +156,9 @@ def start_compute():
 
     try:
         while True:
-            hi.wait(1)
+            hi.wait(0.1)
             task_manager.iterate()
-            time.sleep(1)
+            time.sleep(0.1)
     finally:
         client.loop_stop()
 

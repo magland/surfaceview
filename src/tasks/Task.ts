@@ -1,24 +1,18 @@
 import axios from 'axios'
-import deserializeReturnValue from './deserializeReturnValue'
+import { Sha1Hash } from '../common/misc'
+import checkForTaskReturnValue from './checkForTaskReturnValue'
+
+export type TaskStatus = 'waiting' | 'pending' | 'queued' | 'running' | 'finished' | 'error'
 
 class Task {
-    #status: string = 'waiting'
+    #status: TaskStatus = 'waiting'
     #errorMessage: string = ''
     #returnValue: any = null
     #onStatusChangedCallbacks: ((s: string) => void)[] = []
-    constructor(private taskHash: string, private functionId: string, private kwargs: {[key: string]: any}) {
+    constructor(private taskHash: Sha1Hash, private functionId: string, private kwargs: {[key: string]: any}) {
         ;(async () => {
-            const url = `https://storage.googleapis.com/${process.env.REACT_APP_GOOGLE_BUCKET_NAME}/task_results/${taskHash}`
-            let resp = null
-            try {
-                resp = await axios.get(url)
-            }
-            catch(err) {
-            }
-            if ((resp) && (resp.data)) {
-                console.log('got result *', resp)
-                const returnValue = deserializeReturnValue(resp.data.returnValueSerialized)
-                console.log('got return value *', returnValue)
+            const returnValue = await checkForTaskReturnValue(taskHash, {deserialize: true})
+            if (returnValue) {
                 this._setReturnValue(returnValue)
                 this._setStatus('finished')
             }
@@ -27,6 +21,13 @@ class Task {
                 await axios.post('/api/initiateTask', {task: {functionId, kwargs}, taskHash})
             }
         })()
+        const timeoutForNoResponse = 10000
+        setTimeout(() => {
+            if (this.#status === 'waiting') {
+                this._setErrorMessage('Timeout while waiting for response from compute resource')
+                this._setStatus('error')
+            }
+        }, timeoutForNoResponse)
     }
     public get status() {
         return this.#status
@@ -40,7 +41,7 @@ class Task {
     onStatusChanged(cb: (s: string) => void) {
         this.#onStatusChangedCallbacks.push(cb)
     }
-    _setStatus(s: string) {
+    _setStatus(s: TaskStatus) {
         if (this.#status === s) return
         this.#status = s
         for (let cb of this.#onStatusChangedCallbacks) cb(this.#status)

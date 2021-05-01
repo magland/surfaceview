@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 
 const useGoogleApi = () => {
-    const [gapi, setGapi] = useState<any>(null)
+    const [gapi, setGapi] = useState<any | null | undefined>(undefined)
     const [signedIn, setSignedIn] = useState<boolean>(false)
     
     useEffect(() => {
@@ -15,6 +15,17 @@ const useGoogleApi = () => {
             var CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID
             var API_KEY = process.env.REACT_APP_GOOGLE_API_KEY
 
+            if (!CLIENT_ID) {
+                console.warn(`Environment variable not set: REACT_APP_GOOGLE_CLIENT_ID`)
+            }
+            if (!API_KEY) {
+                console.warn(`Environment variable not set: REACT_APP_GOOGLE_API_KEY`)
+            }
+            if (!(CLIENT_ID && API_KEY)) {
+                setGapi(null)
+                return
+            }
+
             // Array of API discovery doc URLs for APIs used by the quickstart
             var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
 
@@ -22,7 +33,7 @@ const useGoogleApi = () => {
             // included, separated by spaces.
             var SCOPES = 'https://www.googleapis.com/auth/drive.file';
 
-             g.client.init({
+            g.client.init({
                 apiKey: API_KEY,
                 clientId: CLIENT_ID,
                 discoveryDocs: DISCOVERY_DOCS,

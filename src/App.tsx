@@ -10,7 +10,7 @@ import initiateTask from './tasks/initiateTask';
 function App() {
   const [selectedFile, setSelectedFile] = useState<GoogleDriveFile | null>(null)
   const handleTest = useCallback(() => {
-    const t = initiateTask('test1', {delay: 13})
+    const t = initiateTask('test1', {delay: 0.4})
     t.onStatusChanged((s) => {
       console.log('task status changed', s)
     })
