@@ -1,23 +1,25 @@
 import React, { useEffect, useState } from 'react'
 import { FunctionComponent } from "react"
-import GoogleDriveFile from '../google/GoogleDriveFile'
-import useGoogleApi from '../google/useGoogleApi'
+import { UserStorageFile } from '../../userStorage/createUserStorageClient'
 import SurfaceView from './SurfaceView'
 
 type Props = {
-    file: GoogleDriveFile
+    file: UserStorageFile
 }
 
 const SurfaceViewFromFile: FunctionComponent<Props> = ({file}) => {
-    const {gapi} = useGoogleApi()
     const [surfaceData, setSurfaceData] = useState<any | null>(null)
+    const [error, setError] = useState<Error | null>(null)
 
     useEffect(() => {
-        if (!gapi) return
-        gapi.client.drive.files.get({fileId: file.id, alt: 'media'}).then((resp: any) => {
-            setSurfaceData(JSON.parse(resp.body))
+        if (!file) return
+        file.downloadContent().then((data: any) => {
+            setSurfaceData(JSON.parse(data))
+        }).catch((err: Error) => {
+            console.warn(err)
+            setError(err)
         })
-    }, [gapi, file])
+    }, [file])
 
     return (
         <span>
@@ -26,7 +28,11 @@ const SurfaceViewFromFile: FunctionComponent<Props> = ({file}) => {
                     <SurfaceView
                         surfaceData={surfaceData}
                     />
-                ) : (<div>Loading...</div>)
+                ) : error ? (
+                    <div>Error loading data</div>
+                ) : (
+                    <div>Loading...</div>
+                )
             }
         </span>
     )

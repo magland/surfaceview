@@ -2,11 +2,12 @@ import { Button } from '@material-ui/core'
 import { DropzoneArea } from 'material-ui-dropzone'
 import React, { useCallback, useState } from 'react'
 import { FunctionComponent } from "react"
-import getFolderId from '../google/getFolderId'
+import getFolderId from '../../userStorage/google/getFolderId'
+import GoogleUserStorageClient from '../../userStorage/google/GoogleUserStorageClient'
 
 type Props = {
+    client: GoogleUserStorageClient
     folderName: string
-    gapi: any
     onUploaded: () => void
 }
 
@@ -28,19 +29,19 @@ const uploadFile = async (gapi: any, folderName: string, file: File) => {
     return res
 }
 
-const UploadFile: FunctionComponent<Props> = ({ folderName, gapi, onUploaded }) => {
+const UploadFile: FunctionComponent<Props> = ({ client, folderName, onUploaded }) => {
     const [uploadAreaVisible, setUploadAreaVisible] = useState<boolean>(false)
     const handleChange = useCallback((files: File[]) => {
         ;(async () => {
             for (let file of files) {
-                const res = await uploadFile(gapi, folderName, file)
+                const res = await uploadFile(client.gapi, folderName, file)
                 if (res.ok) onUploaded()
             }
             if (files.length > 0) {
                 setUploadAreaVisible(false)
             }
         })()
-    }, [onUploaded, gapi, folderName])
+    }, [onUploaded, client.gapi, folderName])
     const handleClick = useCallback(() => {
         setUploadAreaVisible(true)
     }, [])

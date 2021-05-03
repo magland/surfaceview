@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react'
 import { FunctionComponent } from "react"
-import GoogleDriveFile from '../google/GoogleDriveFile'
+import { UserStorageFile } from '../../userStorage/createUserStorageClient'
 import Hyperlink from '../common/Hyperlink'
 import NiceTable from '../common/NiceTable/NiceTable'
 
 type Props = {
-    files: GoogleDriveFile[]
-    onSelectFile: (file: GoogleDriveFile) => void
+    files: UserStorageFile[]
+    onSelectFile: (file: UserStorageFile) => void
 }
 
 const FileTable: FunctionComponent<Props> = ({files, onSelectFile}) => {

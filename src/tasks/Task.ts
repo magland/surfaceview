@@ -1,17 +1,22 @@
 import axios from 'axios'
-import { Sha1Hash } from '../common/misc'
+import { isString, Sha1Hash } from '../common/misc'
+import { ObjectStorageClient } from '../objectStorage/createObjectStorageClient'
 import checkForTaskReturnValue from './checkForTaskReturnValue'
 
 export type TaskStatus = 'waiting' | 'pending' | 'queued' | 'running' | 'finished' | 'error'
+export const isTaskStatus = (x: any): x is TaskStatus => {
+    if (!isString(x)) return false
+    return ['waiting', 'pending', 'queued', 'running', 'finished', 'error'].includes(x)
+} 
 
 class Task {
     #status: TaskStatus = 'waiting'
     #errorMessage: string = ''
     #returnValue: any = null
     #onStatusChangedCallbacks: ((s: string) => void)[] = []
-    constructor(private taskHash: Sha1Hash, private functionId: string, private kwargs: {[key: string]: any}) {
+    constructor(private objectStorageClient: ObjectStorageClient, private taskHash: Sha1Hash, private functionId: string, private kwargs: {[key: string]: any}) {
         ;(async () => {
-            const returnValue = await checkForTaskReturnValue(taskHash, {deserialize: true})
+            const returnValue = await checkForTaskReturnValue(objectStorageClient, taskHash, {deserialize: true})
             if (returnValue) {
                 this._setReturnValue(returnValue)
                 this._setStatus('finished')

@@ -32,7 +32,7 @@ def return_42(delay: float):
     }
 
 @taskfunction(function_id='test1')
-def task_test1(delay: float):
+def task_test1(delay: float, dummy: Any):
     with hi.Config(job_handler=job_handler):
         return hi.Job(return_42, {'delay': delay})
 
@@ -93,10 +93,13 @@ class TaskManager:
                 del self._tasks[task_hash]
 
 def start_compute():
+    # For uploading to google bucket
     if os.getenv('GOOGLE_BUCKET_NAME') is None:
         raise Exception(f'Environment variable not set: GOOGLE_BUCKET_NAME')
     if os.getenv('GOOGLE_APPLICATION_CREDENTIALS') is None:
         raise Exception(f'Environment variable not set: GOOGLE_APPLICATION_CREDENTIALS')
+    
+    # For sending pubsub messages
     if os.getenv('ABLY_API_KEY') is None:
         raise Exception(f'Environment variable not set: ABLY_API_KEY')
     
