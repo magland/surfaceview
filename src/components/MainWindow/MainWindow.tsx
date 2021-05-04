@@ -4,7 +4,8 @@ import useComputeEngineClient from '../../computeEngine/useComputeEngineClient';
 import ApplicationBar from './ApplicationBar';
 import SettingsWindow from './SettingsWindow';
 import SurfaceView, {SurfaceData} from '../SurfaceView/SurfaceView'
-import { PubsubChannel } from '../../pubsub/createPubsubClient';
+import { FeedId } from '../../common/misc';
+import { SubfeedHash } from '../../kacheryDaemonInterface/kacheryTypes';
 
 // Thanks: https://stackoverflow.com/questions/36862334/get-viewport-window-height-in-reactjs
 function getWindowDimensions() {
@@ -64,13 +65,18 @@ const MainWindow: FunctionComponent<Props> = ({ version, width, height }) => {
         t.onStatusChanged((s) => {
           console.log('task status changed', s, t.returnValue)
           if (t.status === 'finished') {
-              setSurfaceData(t.returnValue)
+              const ret = t.returnValue as any as SurfaceData
+              setSurfaceData(ret)
           }
         })
       }
-      const sf: PubsubChannel = computeEngineClient.getSubfeed({feedId: '41fd0373d06533388f7b4a0d71dc964101174e67aa1a6f6582e109adcba8811c', subfeedHash: '668f8a9f503cde03da8cf231371eb2fcf659564e'})
-      sf.subscribe((msg) => {
-          console.log('--- got message', msg.data)
+      computeEngineClient.subscribeToSubfeed({
+          feedId: '7f4e0a3609cfd072f53be8cfe722a9036bb82e0e46fb6f7dfd04578205782d61' as any as FeedId,
+          subfeedHash: '668f8a9f503cde03da8cf231371eb2fcf659564e' as any as SubfeedHash,
+          startPosition: 0,
+          onMessage: (msg, i) => {
+            console.log('--- got message', msg, i)
+          }
       })
     }, [computeEngineClient])
 

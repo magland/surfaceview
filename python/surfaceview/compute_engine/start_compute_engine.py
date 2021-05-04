@@ -5,6 +5,8 @@ import uuid
 import hashlib
 from typing import Union
 
+from surfaceview.compute_engine.subfeed_manager import SubfeedManager
+
 from .task_manager import TaskManager, find_taskfunction
 from ._common import _http_json_post, _upload_to_google_cloud
 import paho.mqtt.client as mqtt
@@ -32,6 +34,7 @@ class ComputeEngine:
             ably_channel = self._registration['serverChannelName']
             self._ably_client.publish(ably_channel, json.dumps(msg).encode('utf-8'), qos=1)
         self._task_manager = TaskManager(on_publish_message=on_publish_message, google_bucket_name=google_bucket_name)
+        self._subfeed_manager = SubfeedManager(on_publish_message=on_publish_message, google_bucket_name=google_bucket_name)
     def iterate(self):
 
         # Check if we need to renew registration
@@ -46,6 +49,7 @@ class ComputeEngine:
                 self._renew_registration()
         
         self._task_manager.iterate()
+        self._subfeed_manager.iterate()
         
     def _registration_age(self):
         return time.time() - self._registration_timestamp
@@ -76,6 +80,11 @@ class ComputeEngine:
                 else:
                     msg = {'type': 'statusUpdate', 'taskHash': task_hash, 'status': 'error', 'error': f'Unable to find task function: {function_id}'}
                     self._ably_client.publish(self._registration['serverChannelName'], json.dumps(msg).encode('utf-8'), qos=1)
+        elif type0 == 'subscribeToSubfeed':
+            feed_id = message.get('feedId', None)
+            subfeed_hash = message.get('subfeedHash', None)
+            if feed_id is not None and subfeed_hash is not None:
+                self._subfeed_manager.subscribe_to_subfeed(feed_id=feed_id, subfeed_hash=subfeed_hash)
     def _publish_to_task_status(self, msg: dict):
         self._ably_client.publish(self._registration['serverChannelName'], json.dumps(msg).encode('utf-8'), qos=1)
     def _renew_registration(self):

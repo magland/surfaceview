@@ -1,5 +1,4 @@
 import { Sha1Hash, pathifyHash, JSONValue } from "../../common/misc"
-import { JSONObject } from "../../kacheryDaemonInterface/kacheryTypes"
 import { ObjectStorageClient } from "../../objectStorage/createObjectStorageClient"
 import deserializeReturnValue from "./deserializeReturnValue"
 
@@ -12,7 +11,7 @@ const checkForTaskReturnValue = async (objectStorageClient: ObjectStorageClient,
         ret = JSON.parse(new TextDecoder().decode(returnValue)) as any as JSONValue
     }
     catch(err) {
-        console.warn(`Problem parsing return value for: ${path}`)
+        console.warn(`Problem parsing return value for: ${path}`, returnValue)
         return null
     }
     if (opts.deserialize) {

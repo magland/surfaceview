@@ -1,5 +1,5 @@
 import { FeedId } from "../common/misc";
-import { SubfeedHash } from "../kacheryDaemonInterface/kacheryTypes";
+import { SubfeedHash, SubfeedMessage } from "../kacheryDaemonInterface/kacheryTypes";
 import { ObjectStorageClient } from "../objectStorage/createObjectStorageClient";
 import { PubsubChannel, PubsubMessage } from "../pubsub/createPubsubClient";
 import SubfeedManager from "./SubfeedManager";
@@ -20,8 +20,8 @@ class ComputeEngineClient {
     initiateTask(functionId: string, kwargs: {[key: string]: any}) {
         return this.#taskManager.initiateTask(functionId, kwargs)
     }
-    subscribeToSubfeed(opts: {feedId: FeedId, subfeedHash: SubfeedHash}) {
-        const subfeedSubscription = this.#subfeedManager.createSubfeedSubscription(opts)
+    subscribeToSubfeed(opts: {feedId: FeedId, subfeedHash: SubfeedHash, startPosition: number, onMessage: (msg: SubfeedMessage, messageNumber: number) => void}) {
+        this.#subfeedManager.subscribeToSubfeed(opts)
     }
 }
 

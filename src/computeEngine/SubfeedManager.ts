@@ -2,7 +2,6 @@ import { elapsedSince, FeedId, isEqualTo, isFeedId, JSONObject, nowTimestamp, Ti
 import { isMessageCount, isSignedSubfeedMessage, isSubfeedHash, MessageCount, messageCountToNumber, SignedSubfeedMessage, SubfeedHash, SubfeedMessage } from "../kacheryDaemonInterface/kacheryTypes";
 import { ObjectStorageClient } from "../objectStorage/createObjectStorageClient";
 import { PubsubChannel } from "../pubsub/createPubsubClient";
-import ComputeEngineClient from "./ComputeEngineClient";
 
 class SubfeedSubscription {
     #position = 0
@@ -89,6 +88,7 @@ class Subfeed {
                     if (this.#inMemoryMessages.length <= i) throw Error('Very unexpected.')
                 }
                 else {
+                    console.warn(msg)
                     throw Error('Not a valid signed subfeed message')
                 }
             }
@@ -130,16 +130,23 @@ class SubfeedManager {
             }
         }
     }
-    subscribeToSubfeed(opts: {feedId: FeedId, subfeedHash: SubfeedHash, startPosition: number, callback: (subfeedMessage: SubfeedMessage, messageNumber: number) => void}) {
-        const code = this._subfeedCode(feedId, subfeedHash)
+    subscribeToSubfeed(opts: {feedId: FeedId, subfeedHash: SubfeedHash, startPosition: number, onMessage: (subfeedMessage: SubfeedMessage, messageNumber: number) => void}) {
+        const code = this._subfeedCode(opts.feedId, opts.subfeedHash)
         let s = this.#subfeeds[code]
         if (!s) {
             s = new Subfeed({feedId: opts.feedId, subfeedHash: opts.subfeedHash, objectStorageClient: this.objectStorageClient})
             this.#subfeeds[code] = s
+            this.clientChannel.publish({
+                data: {
+                    type: 'subscribeToSubfeed',
+                    feedId: opts.feedId.toString(),
+                    subfeedHash: opts.subfeedHash.toString()
+                }
+            })
         }
         s.lastSubscriptionTimestamp = nowTimestamp()
         const x = new SubfeedSubscription(s, opts.startPosition)
-        x.onMessage(opts.callback)
+        x.onMessage(opts.onMessage)
         x.initialize()
     }
     _subfeedCode(feedId: FeedId, subfeedHash: SubfeedHash) {
