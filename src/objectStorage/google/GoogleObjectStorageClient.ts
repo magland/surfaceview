@@ -7,11 +7,11 @@ export type GoogleObjectStorageClientOpts = {
 class GoogleObjectStorageClient {
     constructor(private opts: GoogleObjectStorageClientOpts) {
     }
-    async getObjectData(name: string) {
+    async getObjectData(name: string): Promise<ArrayBuffer | null> {
         const url = `https://storage.googleapis.com/${this.opts.bucketName}/${name}`
         let resp = null
         try {
-            resp = await axios.get(url)
+            resp = await axios.get(url, {responseType: 'arraybuffer'})
         }
         catch(err) {
             return null

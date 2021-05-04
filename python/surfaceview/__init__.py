@@ -1,3 +1,4 @@
-from .start_compute import start_compute
+from .compute_engine.start_compute_cli import start_compute_cli
+from .compute_engine.start_compute_engine import start_compute_engine
 from .vtk_to_mesh_dict import vtk_to_mesh_dict
 from .vtk_to_mesh_json import vtk_to_mesh_json

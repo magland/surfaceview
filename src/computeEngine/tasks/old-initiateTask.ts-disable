@@ -1,0 +1,49 @@
+// import KacheryDaemonInterface from '../kacheryDaemonInterface/KacheryDaemonInterface'
+// import createObjectStorageClient, { ObjectStorageClient } from '../objectStorage/createObjectStorageClient'
+// import createPubsubClient, { PubsubClient } from '../pubsub/createPubsubClient'
+// import TaskManager from './TaskManager'
+// import {FeedId} from '../common/misc'
+
+// const KACHERY_P2P_API_HOST = process.env.REACT_APP_KACHERY_P2P_API_HOST
+// const KACHERY_P2P_API_PORT = process.env.REACT_APP_KACHERY_P2P_API_PORT
+// const KACHERY_PUBSUB_FEED_ID = process.env.REACT_APP_KACHERY_PUBSUB_FEED_ID
+// const GOOGLE_BUCKET_NAME = process.env.REACT_APP_GOOGLE_BUCKET_NAME
+// const ABLY_API_KEY_SUBSCRIBE = process.env.REACT_APP_ABLY_API_KEY_SUBSCRIBE || ''
+
+// let kacheryDaemonInterface
+// if (KACHERY_P2P_API_PORT) {
+//     kacheryDaemonInterface = new KacheryDaemonInterface({apiPort: parseInt(KACHERY_P2P_API_PORT), apiHost: KACHERY_P2P_API_HOST || undefined})
+// }
+
+// let objectStorageClient: ObjectStorageClient | null = null
+// if (kacheryDaemonInterface) {
+//     objectStorageClient = createObjectStorageClient({kachery: {kacheryDaemonInterface}})
+// }
+// else if (GOOGLE_BUCKET_NAME) {
+//     objectStorageClient = createObjectStorageClient({google: {bucketName: GOOGLE_BUCKET_NAME}})
+// }
+// else {
+//     console.warn('Environment variable not set: REACT_APP_GOOGLE_BUCKET_NAME or REACT_APP_KACHERY_P2P_API_PORT')
+// }
+
+// let pubsubClient: PubsubClient | null = null
+// if (kacheryDaemonInterface) {
+//     if (!KACHERY_PUBSUB_FEED_ID) {
+//         throw Error(`Environment variable not set: REACT_APP_KACHERY_PUBSUB_FEED_ID`)
+//     }
+//     pubsubClient = createPubsubClient({kachery: {kacheryDaemonInterface, feedId: KACHERY_PUBSUB_FEED_ID as any as FeedId}})
+// }
+// else if (ABLY_API_KEY_SUBSCRIBE) {
+//     pubsubClient = createPubsubClient({ably: {apiKey: ABLY_API_KEY_SUBSCRIBE}})
+// }
+// else {
+//     console.warn(`Environment variable not set: REACT_APP_ABLY_API_KEY_SUBSCRIBE or REACT_APP_KACHERY_P2P_API_PORT`)
+// }
+
+// // const taskManager = new TaskManager(pubsubClient, objectStorageClient)
+
+// // const initiateTask = (functionId: string, kwargs: {[key: string]: any}) => {
+// //     return taskManager.initiateTask(functionId, kwargs)
+// // }
+
+// // export default initiateTask

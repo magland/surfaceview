@@ -4,7 +4,7 @@ import Splitter from '../common/Splitter';
 import Controls, { SurfaceViewOptions } from './Controls';
 import SurfaceWidget from './SurfaceWidget';
 
-type SurfaceData = {
+export type SurfaceData = {
     vertices: [number, number, number][]
     ifaces: number[]
     faces: number[]

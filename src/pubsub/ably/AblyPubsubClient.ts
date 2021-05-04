@@ -3,7 +3,7 @@ import { PubsubMessage } from '../createPubsubClient'
 
 class AblyPubsubChannel {
     #ablyChannel
-    constructor(private ablyClient: Ably.Realtime, private channelName: string, private opts: {subscribeOnly: boolean}) {
+    constructor(private ablyClient: Ably.Realtime, private channelName: string, private opts: {}) {
         this.#ablyChannel = ablyClient.channels.get(channelName)
     }
     subscribe(callback: (message: PubsubMessage) => void) {
@@ -14,20 +14,22 @@ class AblyPubsubChannel {
             })
         })
     }
+    publish(message: PubsubMessage) {
+        this.#ablyChannel.publish(message)
+    }
 }
 
 export type AblyPubsubClientOpts = {
-    apiKey: string
-    subscribeOnly: boolean
+    token: string
 }
 
 class AblyPubsubClient {
     #ablyClient
     constructor(private opts: AblyPubsubClientOpts) {
-        this.#ablyClient = new Ably.Realtime(opts.apiKey);
+        this.#ablyClient = new Ably.Realtime({token: opts.token});
     }
     getChannel(channelName: string) {
-        return new AblyPubsubChannel(this.#ablyClient, channelName, {subscribeOnly: this.opts.subscribeOnly})
+        return new AblyPubsubChannel(this.#ablyClient, channelName, {})
     }
 }
 

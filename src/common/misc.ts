@@ -1,5 +1,6 @@
 import crypto from 'crypto'
 import assert from 'assert'
+import { SubfeedHash } from '../kacheryDaemonInterface/kacheryTypes';
 
 // object
 export const isObject = (x: any): x is Object => {
@@ -220,4 +221,68 @@ export const JSONStringifyDeterministic = ( obj: Object, space: string | number 
     JSON.stringify( obj, function( key, value ){ allKeys.push( key ); return value; } )
     allKeys.sort();
     return JSON.stringify( obj, allKeys, space );
+}
+
+export type FileKey = {
+    sha1: Sha1Hash,
+    manifestSha1?: Sha1Hash,
+    chunkOf?: {
+        fileKey: FileKey,
+        startByte: number,
+        endByte: number
+    }
+}
+export const isFileKey = (x: any): x is FileKey => {
+    return _validateObject(x, {
+        sha1: isSha1Hash,
+        manifestSha1: optional(isSha1Hash),
+        chunkOf: optional({
+            fileKey: isFileKey,
+            startByte: isByteCount,
+            endByte: isByteCount
+        })
+    });
+}
+export interface ByteCount extends Number {
+    __byteCount__: never
+}
+export const isByteCount = (x: any) : x is ByteCount => {
+    if (!isNumber(x)) return false;
+    if (x < 0) return false;
+    return true;
+}
+
+export interface FeedId extends String {
+    __feedId__: never // phantom type
+}
+export const isFeedId = (x: any): x is FeedId => {
+    if (!isString(x)) return false;
+    return isHexadecimal(x, 64);
+}
+
+// TimeStamp
+export interface Timestamp extends Number {
+    __timestamp__: never
+}
+export const isTimestamp = (x: any) : x is Timestamp => {
+    if (!isNumber(x)) return false;
+    if (x < 0) return false;  // For our purposes, timestamps should never be negative
+    if (!Number.isInteger(x)) return false; // our timestamps should be whole numbers
+    return true;
+}
+export const nowTimestamp = () => {
+    const ret = Number(new Date()) - 0
+    return ret as any as Timestamp
+}
+export const zeroTimestamp = () => {
+    return 0 as any as Timestamp;
+}
+export const elapsedSince = (timestamp: Timestamp) => {
+    return (nowTimestamp() as any as number) - (timestamp as any as number);
+}
+
+export const sleepMsec = (m: number) => new Promise(r => setTimeout(r, m));
+
+export const pathifyHash = (x: Sha1Hash | FeedId | SubfeedHash) => {
+    return `${x[0]}${x[1]}/${x[2]}${x[3]}/${x[4]}${x[5]}/${x}`
 }

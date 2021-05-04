@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# For uploading to google bucket
+# # For uploading to google bucket
 export GOOGLE_BUCKET_NAME=surfaceview
-export ABLY_API_KEY=_ssUmQ.MQCQLA:IeBSPCA6rmfL5h9L
-
-# For sending pubsub messages
 export GOOGLE_APPLICATION_CREDENTIALS=/home/magland/Downloads/surfaceview-312100-77ec7b7d7605.json
 
-surfaceview-start-compute
+# # For sending pubsub messages
+export ABLY_API_KEY=_ssUmQ.MQCQLA:IeBSPCA6rmfL5h9L
+
+surfaceview-start-compute --label cog "$@"

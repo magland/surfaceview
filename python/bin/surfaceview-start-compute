@@ -1,11 +1,6 @@
 #!/usr/bin/env python3
 
-import click
 import surfaceview
 
-@click.command('surfaceview-start-compute')
-def cli():
-    surfaceview.start_compute()
-
 if __name__ == '__main__':
-    cli()
+    surfaceview.start_compute_cli()

@@ -1,6 +1,6 @@
-import axios from 'axios'
-import { isString, Sha1Hash } from '../common/misc'
-import { ObjectStorageClient } from '../objectStorage/createObjectStorageClient'
+import { isString, JSONObject, Sha1Hash } from '../../common/misc'
+import { JSONValue } from '../../kacheryDaemonInterface/kacheryTypes'
+import { ObjectStorageClient } from '../../objectStorage/createObjectStorageClient'
 import checkForTaskReturnValue from './checkForTaskReturnValue'
 
 export type TaskStatus = 'waiting' | 'pending' | 'queued' | 'running' | 'finished' | 'error'
@@ -9,12 +9,21 @@ export const isTaskStatus = (x: any): x is TaskStatus => {
     return ['waiting', 'pending', 'queued', 'running', 'finished', 'error'].includes(x)
 } 
 
+export type TaskQueueMessage = {
+    type: 'initiateTask'
+    task: {
+        functionId: string
+        kwargs: JSONObject
+    }
+    taskHash: Sha1Hash
+}
+
 class Task {
     #status: TaskStatus = 'waiting'
     #errorMessage: string = ''
-    #returnValue: any = null
+    #returnValue: JSONValue | null = null
     #onStatusChangedCallbacks: ((s: string) => void)[] = []
-    constructor(private objectStorageClient: ObjectStorageClient, private taskHash: Sha1Hash, private functionId: string, private kwargs: {[key: string]: any}) {
+    constructor(private onPublishToTaskQueue: (message: TaskQueueMessage) => void, private objectStorageClient: ObjectStorageClient, private taskHash: Sha1Hash, private functionId: string, private kwargs: {[key: string]: any}) {
         ;(async () => {
             const returnValue = await checkForTaskReturnValue(objectStorageClient, taskHash, {deserialize: true})
             if (returnValue) {
@@ -23,7 +32,9 @@ class Task {
             }
             else {
                 console.log('initiating task')
-                await axios.post('/api/initiateTask', {task: {functionId, kwargs}, taskHash})
+                const t = {functionId, kwargs}
+                onPublishToTaskQueue({type: 'initiateTask', 'task': t, taskHash})
+                // await axios.post('/api/initiateTask', {task: , taskHash})
             }
         })()
         const timeoutForNoResponse = 10000
@@ -51,7 +62,7 @@ class Task {
         this.#status = s
         for (let cb of this.#onStatusChangedCallbacks) cb(this.#status)
     }
-    _setReturnValue(x: any) {
+    _setReturnValue(x: JSONValue) {
         this.#returnValue = x
     }
     _setErrorMessage(e: string) {
