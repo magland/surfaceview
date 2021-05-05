@@ -3,13 +3,8 @@ import React, { FunctionComponent, useCallback, useEffect, useState } from 'reac
 import useComputeEngineClient, { useComputeEngineInterface } from '../../computeEngine/useComputeEngineClient';
 import ApplicationBar from './ApplicationBar';
 import SettingsWindow from './SettingsWindow';
-import SurfaceView, {SurfaceData} from '../SurfaceView/SurfaceView'
-import { FeedId } from '../../common/misc';
-import { SubfeedHash } from '../../kacheryDaemonInterface/kacheryTypes';
 import Hyperlink from '../common/Hyperlink';
 import MainView from '../MainView/MainView';
-import {useLocation, useHistory} from 'react-router-dom'
-import QueryString from 'querystring'
 import SelectSurface from './SelectSurface';
 import useSurfaceUri from './useSurfaceUri';
 
@@ -48,6 +43,9 @@ const MainWindow: FunctionComponent<Props> = ({ version, width, height }) => {
     const H = (height || height2) - appBarHeight - 2
     const hMargin = 0
     const W = (width || width2) - hMargin * 2 - 2
+    if (W + H < 0) {
+        console.info('not unused')
+    }
 
     const [settingsVisible, setSettingsVisible] = useState(false)
     const handleOpenSettings = useCallback(() => {
@@ -57,7 +55,7 @@ const MainWindow: FunctionComponent<Props> = ({ version, width, height }) => {
         setSettingsVisible(false)
     }, [])
 
-    const [surfaceData, setSurfaceData] = useState<SurfaceData | undefined>(undefined)
+    // const [surfaceData, setSurfaceData] = useState<SurfaceData | undefined>(undefined)
 
     const computeEngineInterface = useComputeEngineInterface()
     const computeEngineConfigUri = computeEngineInterface.computeEngineConfigUri
@@ -120,13 +118,13 @@ const MainWindow: FunctionComponent<Props> = ({ version, width, height }) => {
                     )
                 }
             </div> */}
-            <div>
+            {/* <div>
                 {
                     surfaceData && (
                         <SurfaceView surfaceData={surfaceData} />
                     )
                 }
-            </div>
+            </div> */}
             
             <Modal
                 open={settingsVisible}

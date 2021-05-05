@@ -89,11 +89,11 @@ module.exports = (req: VercelRequest, res: VercelResponse) => {
         const { computeEngineConfigUri, type, secret, reportOnly, unregister } = request
         const url0 = urlFromUri(computeEngineConfigUri)
         const response = await axios.get(cacheBust(url0), {responseType: 'json'})
-        const computeEngineConfig = response.data
+        const computeEngineConfig: {label: string, objectStorageUrl: string, secretSha1: string} = response.data
 
         if (request.type === 'registerComputeEngine') {
             const {secretSha1} = computeEngineConfig
-            if (secretSha1 !== sha1OfString(secret)) {
+            if (secretSha1 !== sha1OfString(secret).toString()) {
                 throw Error(`Invalid secret: ${secretSha1} <> ${sha1OfString(secret)}`)
             }
         }
@@ -109,7 +109,7 @@ module.exports = (req: VercelRequest, res: VercelResponse) => {
         const clientChannelName = 'client_' + configUriHash.toString()
         const serverChannelName = 'server_' + configUriHash.toString()
         if (!reportOnly) {
-            const capability = {}
+            const capability: {[key: string]: string[]} = {}
             
             if (type === 'registerComputeEngine') {
                 capability[clientChannelName] = ["history", "subscribe"] // order matters i think

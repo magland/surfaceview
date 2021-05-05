@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { FunctionComponent } from "react"
-import {useLocation, useHistory} from 'react-router-dom'
-import Task, { TaskStatus } from '../../computeEngine/tasks/Task'
-import useComputeEngineClient, { useComputeEngineInterface } from '../../computeEngine/useComputeEngineClient'
+import { TaskStatus } from '../../computeEngine/tasks/Task'
+import useComputeEngineClient from '../../computeEngine/useComputeEngineClient'
 import useSurfaceUri from '../MainWindow/useSurfaceUri'
 import SurfaceView, { SurfaceData } from '../SurfaceView/SurfaceView'
 
@@ -34,7 +33,7 @@ const useTask = (functionId: string, kwargs: any) => {
 }
 
 const useSurfaceDataFromUri = (uri: string) => {
-    const {returnValue: surfaceData, task} = useTask('load_surface', {uri})
+    const {returnValue: surfaceData} = useTask('load_surface', {uri})
     return surfaceData ? surfaceData as SurfaceData : undefined
 }
 

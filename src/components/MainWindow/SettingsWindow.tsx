@@ -1,9 +1,8 @@
-import { Button, IconButton, Table, TableCell, TableRow } from '@material-ui/core';
+import { IconButton } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Close } from '@material-ui/icons';
 import React, { FunctionComponent, useCallback } from 'react';
-import useComputeEngineClient, { useComputeEngineInterface } from '../../computeEngine/useComputeEngineClient';
-import useRegisteredComputeEngines from '../../computeEngine/useRegisteredComputeEngines';
+import { useComputeEngineInterface } from '../../computeEngine/useComputeEngineClient';
 import SelectComputeEngine from './SelectComputeEngine';
 
 const useStyles = makeStyles((theme) => ({
@@ -28,8 +27,8 @@ type Props = {
 
 const SettingsWindow: FunctionComponent<Props> = ({ version, onClose }) => {
     const classes = useStyles();
-    const registeredComputeEngines = useRegisteredComputeEngines()
-    const computeEngineClient = useComputeEngineClient()
+    // const registeredComputeEngines = useRegisteredComputeEngines()
+    // const computeEngineClient = useComputeEngineClient()
     const computeEngineInterface = useComputeEngineInterface()
     const handleSelectComputeEngine = useCallback((uri: string) => {
         computeEngineInterface.setComputeEngineConfigUri(uri)

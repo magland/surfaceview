@@ -44,7 +44,7 @@ const useDefaultComputeEngine = () => {
 }
 
 const useSetupComputeEngineInterface = (): ComputeEngineInterface => {
-    const {defaultComputeEngineConfigUri, setDefaultComputeEngineConfigUri} = useDefaultComputeEngine()
+    const {defaultComputeEngineConfigUri} = useDefaultComputeEngine()
     const [computeEngineConfigUri, setComputeEngineConfigUri] = useState<string | undefined>(defaultComputeEngineConfigUri)
     const [registration, setRegistration] = useState<Registration | null | undefined>(undefined)
     const handleSetComputeEngineConfigUri = useCallback((uri: string) => {
