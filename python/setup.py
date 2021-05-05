@@ -6,5 +6,11 @@ setup(
         'bin/vtk-to-mesh-json',
         'bin/surfaceview-start-compute'
     ],
-    install_requires=['vtk', 'click']
+    install_requires=[
+        'vtk',
+        'click',
+        'hither',
+        'google-cloud-storage',
+        'paho-mqtt'
+    ]
 )

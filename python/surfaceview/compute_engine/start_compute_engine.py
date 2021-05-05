@@ -63,7 +63,6 @@ class ComputeEngine:
         return time.time() - self._registration_timestamp
     def _on_ably_message(self, message: dict):
         type0 = message.get('type', None)
-        print('--- ably message', message)
         if type0 == 'initiateTask':
             try:
                 task_hash = message.get('taskHash')

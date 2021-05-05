@@ -16,7 +16,7 @@ const SelectSurface: FunctionComponent<Props> = ({onSelected}) => {
         if (e.keyCode === 13) {
            onSelected(uri)
         }
-    }, [uri])
+    }, [uri, onSelected])
     return (
         <div>
             <p>Enter the URI of a surface mesh. For example: sha1://...../surf.mesh.json</p>

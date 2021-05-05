@@ -40,9 +40,8 @@ const SelectComputeEngine: FunctionComponent<Props> = ({onSelectComputeEngine}) 
     const handleSelectedRowKeysChanged = useCallback((uris: string[]) => {
         if (uris[0]) {
             onSelectComputeEngine(uris[0])
-            // computeEngineInterface.setComputeEngineConfigUri(uris[0])
         }
-    }, [computeEngineInterface])
+    }, [onSelectComputeEngine])
     const handleRefresh = useCallback(() => {
         computeEngineInterface.refreshRegisteredComputeEngines()
     }, [computeEngineInterface])

@@ -29,7 +29,7 @@ const getMessageHistory = async (channel: Ably.Types.ChannelCallbacks) => {
                         reject(err)
                         return
                     }
-                    processPage(nextPage)
+                    if (nextPage) processPage(nextPage)
                 })
             }
             else {
