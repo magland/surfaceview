@@ -93,6 +93,9 @@ module.exports = (req: VercelRequest, res: VercelResponse) => {
 
         if (request.type === 'registerComputeEngine') {
             const {secretSha1} = computeEngineConfig
+            if (!secret) {
+                throw Error(`Missing secret.`)
+            }
             if (secretSha1 !== sha1OfString(secret).toString()) {
                 throw Error(`Invalid secret: ${secretSha1} <> ${sha1OfString(secret)}`)
             }
