@@ -1,5 +1,5 @@
-import { elapsedSince, FeedId, isEqualTo, isFeedId, JSONObject, nowTimestamp, Timestamp, zeroTimestamp, _validateObject, pathifyHash, JSONValue } from "../common/misc";
-import { isMessageCount, isSignedSubfeedMessage, isSubfeedHash, MessageCount, messageCountToNumber, SignedSubfeedMessage, SubfeedHash, SubfeedMessage } from "../kacheryDaemonInterface/kacheryTypes";
+import { elapsedSince, FeedId, isEqualTo, isFeedId, JSONObject, nowTimestamp, Timestamp, zeroTimestamp, _validateObject, pathifyHash, JSONValue, isNumber } from "../common/misc";
+import { isMessageCount, isSignedSubfeedMessage, isSubfeedHash, messageCount, MessageCount, messageCountToNumber, SignedSubfeedMessage, SubfeedHash, SubfeedMessage } from "../kacheryDaemonInterface/kacheryTypes";
 import { ObjectStorageClient } from "../objectStorage/createObjectStorageClient";
 import { PubsubChannel } from "../pubsub/createPubsubClient";
 
@@ -40,7 +40,7 @@ class Subfeed {
     #lastSubscriptionTimestamp: Timestamp = zeroTimestamp()
     #isDownloadingMessages = false
     constructor(private opts: {feedId: FeedId, subfeedHash: SubfeedHash, objectStorageClient: ObjectStorageClient}) {
-
+        this._loadSubfeedJson()
     }
     public get inMemoryMessageCount() {
         return this.#inMemoryMessages.length
@@ -98,6 +98,18 @@ class Subfeed {
             }
         }
         this.#isDownloadingMessages = false
+    }
+    async _loadSubfeedJson() {
+        const name = `feeds/${pathifyHash(this.opts.feedId)}/subfeeds/${pathifyHash(this.opts.subfeedHash)}/subfeed.json`
+        const data = await this.opts.objectStorageClient.getObjectData(name, {cacheBust: true})
+        if (!data) return
+        const x = JSON.parse((new TextDecoder()).decode(data))
+        const ct = x.messageCount
+        if ((isNumber(ct)) && (ct > 0)) {
+            if ((!this.#remoteMessageCount) || (ct > messageCountToNumber(this.#remoteMessageCount))) {
+                this.setRemoteMessageCount(messageCount(ct))
+            }
+        }
     }
 }
 

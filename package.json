@@ -18,11 +18,13 @@
     "axios": "^0.21.1",
     "github-markdown-css": "^4.0.0",
     "material-ui-dropzone": "^3.5.0",
+    "querystring": "^0.2.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-draggable": "^4.4.3",
     "react-google-button": "^0.7.2",
     "react-markdown": "^4.3.1",
+    "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
     "react-syntax-highlighter": "^15.4.3",
     "three": "^0.128.0",
@@ -54,6 +56,7 @@
     ]
   },
   "devDependencies": {
+    "@types/react-router-dom": "^5.1.7",
     "@types/react-syntax-highlighter": "^13.5.0",
     "@vercel/node": "^1.10.0"
   }

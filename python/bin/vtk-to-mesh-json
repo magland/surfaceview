@@ -7,8 +7,9 @@ import surfaceview
 @click.argument('vtk_path')
 @click.argument('json_path')
 @click.option('--format', help='One of: UnstructuredGrid, XMLPolyData', required=True)
-def cli(vtk_path: str, json_path: str, format: str):
-    surfaceview.vtk_to_mesh_json(vtk_path, json_path, format)
+@click.option('--base64', is_flag=True)
+def cli(vtk_path: str, json_path: str, format: str, base64: bool):
+    surfaceview.vtk_to_mesh_json(vtk_path, json_path, format, base64)
 
 if __name__ == '__main__':
     cli()

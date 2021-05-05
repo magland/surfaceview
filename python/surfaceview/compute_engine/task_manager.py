@@ -72,7 +72,7 @@ class Task:
             self._status = self._job.status
             self._publish_status_update()
     def _publish_status_update(self):
-        msg = {'type': 'statusUpdate', 'taskHash': self._task_hash, 'status': self._status}
+        msg = {'type': 'taskStatusUpdate', 'taskHash': self._task_hash, 'status': self._status}
         if self._status == 'error':
             msg['error'] = str(self._job.result.error)
         elif self._status == 'finished':

@@ -6,14 +6,14 @@ import { ObjectStorageClient } from '../../objectStorage/createObjectStorageClie
 import { isEqualTo, isSha1Hash, isString, JSONObject, optional, Sha1Hash, sleepMsec, _validateObject } from '../../common/misc';
 
 type StatusUpdateMessage = {
-    type: 'statusUpdate'
+    type: 'taskStatusUpdate'
     taskHash: Sha1Hash
     status: TaskStatus
     error?: string
 }
 const isStatusUpdateMessage = (x: any): x is StatusUpdateMessage => {
     return _validateObject(x, {
-        type: isEqualTo('statusUpdate'),
+        type: isEqualTo('taskStatusUpdate'),
         taskHash: isSha1Hash,
         status: isTaskStatus,
         error: optional(isString)
@@ -48,6 +48,7 @@ class TaskManager {
         return t
     }
     processServerMessage(msg: JSONObject) {
+        console.log('-- process server message', msg)
         if (isStatusUpdateMessage(msg)) {
             const taskHash = msg.taskHash
             if ((isSha1Hash(taskHash)) && (taskHash.toString() in this.#tasks)) {

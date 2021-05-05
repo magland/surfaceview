@@ -22,7 +22,7 @@ class Task {
     #status: TaskStatus = 'waiting'
     #errorMessage: string = ''
     #returnValue: JSONValue | null = null
-    #onStatusChangedCallbacks: ((s: string) => void)[] = []
+    #onStatusChangedCallbacks: ((s: TaskStatus) => void)[] = []
     constructor(private onPublishToTaskQueue: (message: TaskQueueMessage) => void, private objectStorageClient: ObjectStorageClient, private taskHash: Sha1Hash, private functionId: string, private kwargs: {[key: string]: any}) {
         ;(async () => {
             const returnValue = await checkForTaskReturnValue(objectStorageClient, taskHash, {deserialize: true})
@@ -54,7 +54,7 @@ class Task {
     public get errorMessage() {
         return this.#errorMessage
     }
-    onStatusChanged(cb: (s: string) => void) {
+    onStatusChanged(cb: (s: TaskStatus) => void) {
         this.#onStatusChangedCallbacks.push(cb)
     }
     _setStatus(s: TaskStatus) {

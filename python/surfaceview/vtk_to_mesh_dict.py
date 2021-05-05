@@ -1,9 +1,11 @@
 import json
+import numpy as np
 from vtk.util.numpy_support import vtk_to_numpy
 from vtk import vtkUnstructuredGridReader, vtkXMLPolyDataReader
 from vtk.numpy_interface import dataset_adapter as dsa
+from .compute_engine._serialize import _serialize
 
-def vtk_to_mesh_dict(vtk_path: str, format: str) -> dict:
+def vtk_to_mesh_dict(vtk_path: str, format: str, base64: bool=False) -> dict:
     if format == 'UnstructuredGrid':
         reader = vtkUnstructuredGridReader()
     elif format == 'XMLPolyData':
@@ -31,6 +33,11 @@ def vtk_to_mesh_dict(vtk_path: str, format: str) -> dict:
         for j in range(num_points):
             faces.append(int(faces0[i]))
             i = i + 1
+
+    if base64:
+        vertices = _serialize(np.array(vertices, dtype=np.float32))
+        ifaces = _serialize(np.array(ifaces, dtype=np.int32))
+        faces = _serialize(np.array(faces, dtype=np.int32))
 
     return {
         'vertices': vertices,

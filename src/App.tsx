@@ -2,6 +2,9 @@ import './App.css';
 import ComputeEngineContext from './computeEngine/ComputeEngineContext';
 import MainWindow from './components/MainWindow/MainWindow';
 import useInitializeComputeEngineInterface from './computeEngine/useInitializeComputeEngineInterface';
+import { MuiThemeProvider } from '@material-ui/core';
+import theme from './theme';
+import { BrowserRouter } from 'react-router-dom';
 
 // // USER STORAGE CLIENT
 // // Client ID and API key from the Developer Console
@@ -36,33 +39,30 @@ function App() {
   //   }
   // }, [computeEngineInterface])
 
-  const uri = 'gs://surfaceview/surfaceview-compute-engine/cog.json'
-  computeEngineInterface.setComputeEngineConfigUri(uri)
-
-  console.log('--- value for provider', computeEngineInterface.computeEngineClient)
-
   return (
     <div className="App">
-      <ComputeEngineContext.Provider value={computeEngineInterface}>
-        <MainWindow />
-        {/* <Markdown
-            source={appMd}
-        />
-        {
-          userStorageClient && (
-            (selectedFile === null) ? (
-              <SelectFile userStorageClient={userStorageClient} folderName={"surfaceview"} onFileSelected={setSelectedFile} />
-            ) : (
-              <SurfaceViewFromFile file={selectedFile} />
+      <MuiThemeProvider theme={theme}>
+        <ComputeEngineContext.Provider value={computeEngineInterface}>
+          <BrowserRouter><MainWindow /></BrowserRouter>
+          {/* <Markdown
+              source={appMd}
+          />
+          {
+            userStorageClient && (
+              (selectedFile === null) ? (
+                <SelectFile userStorageClient={userStorageClient} folderName={"surfaceview"} onFileSelected={setSelectedFile} />
+              ) : (
+                <SurfaceViewFromFile file={selectedFile} />
+              )
             )
-          )
-        }
-        {
-          computeEngineInterface.taskManager && (
-            <button onClick={handleTest} title="test for developers">&nbsp;</button>
-          )
-        } */}
-      </ComputeEngineContext.Provider>
+          }
+          {
+            computeEngineInterface.taskManager && (
+              <button onClick={handleTest} title="test for developers">&nbsp;</button>
+            )
+          } */}
+        </ComputeEngineContext.Provider>
+      </MuiThemeProvider>
     </div>
   );
 }

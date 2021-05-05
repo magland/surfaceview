@@ -6,14 +6,22 @@ export type ComputeEngineConfig = {
     objectStorageUrl: string
 }
 
+export type RegisteredComputeEngine = {
+    computeEngineConfigUri: string
+    computeEngineConfig: any
+}
+
 export type ComputeEngineInterface = {
+    registeredComputeEngines?: RegisteredComputeEngine[]
     computeEngineConfigUri?: string
     computeEngineConfig?: ComputeEngineConfig
     computeEngineClient?: ComputeEngineClient
+    refreshRegisteredComputeEngines: () => void
     setComputeEngineConfigUri: (uri: string) => void
 }
 
 const dummyComputeEngineInterface = {
+    refreshRegisteredComputeEngines: () => {},
     setComputeEngineConfigUri: (uri: string) => {}
 }
 

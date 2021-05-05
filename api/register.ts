@@ -1,18 +1,22 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
 import Ably from 'ably'
-import {_validateObject, isString, sha1OfString, isOneOf, isEqualTo, optional} from './common/misc'
+import {_validateObject, isString, sha1OfString, isOneOf, isEqualTo, optional, isBoolean} from './common/misc'
 import axios from 'axios'
 
 type Request = {
     type: 'registerComputeEngine' | 'registerClient',
-    computeEngineConfigUrl: string
+    computeEngineConfigUri: string
     secret?: string
+    reportOnly?: string
+    unregister?: string
 }
 const isRequest = (x: any): x is Request => {
     return _validateObject(x, {
         type: isOneOf([isEqualTo('registerComputeEngine'), isEqualTo('registerClient')]),
-        computeEngineConfigUrl: isString,
-        secret: optional(isString)
+        computeEngineConfigUri: isString,
+        secret: optional(isString),
+        reportOnly: optional(isBoolean),
+        unregister: optional(isBoolean)
     })
 }
 
@@ -51,6 +55,28 @@ export const randomAlphaString = (num_chars: number) => {
     return text;
 }
 
+const urlFromUri = (uri: string) => {
+    if (uri.startsWith('gs://')) {
+        const p = uri.slice("gs://".length)
+        return `https://storage.googleapis.com/${p}`
+    }
+    else return uri
+}
+
+const publishMessageAsync = async (channel: Ably.Types.ChannelCallbacks, message: any) => {
+    return new Promise<void>((resolve, reject) => {
+        channel.publish({
+            data: message
+        }, (err: Error) => {
+            if (err) {
+                reject(err)
+                return
+            }
+            resolve()
+        })
+    })
+}
+
 module.exports = (req: VercelRequest, res: VercelResponse) => {
     const {body: request} = req
     if (!isRequest(request)) {
@@ -59,8 +85,9 @@ module.exports = (req: VercelRequest, res: VercelResponse) => {
     }
 
     ;(async () => {
-        const { computeEngineConfigUrl, type, secret } = request
-        const response = await axios.get(cacheBust(computeEngineConfigUrl), {responseType: 'json'})
+        const { computeEngineConfigUri, type, secret, reportOnly, unregister } = request
+        const url0 = urlFromUri(computeEngineConfigUri)
+        const response = await axios.get(cacheBust(url0), {responseType: 'json'})
         const computeEngineConfig = response.data
 
         if (request.type === 'registerComputeEngine') {
@@ -70,31 +97,49 @@ module.exports = (req: VercelRequest, res: VercelResponse) => {
             }
         }
 
-        const configUrlHash = sha1OfString(computeEngineConfigUrl)
+        const configUriHash = sha1OfString(computeEngineConfigUri)
 
         // Note that this uses Ably.Rest, not Realtime. This is because we don't want
         // to start a websocket connection to Ably just to make one publish, that
         // would be inefficient. Ably.Rest makes the publish as a REST request.
         const ably = new Ably.Rest({ key: process.env.ABLY_API_KEY });
 
-        const capability = {}
-        const clientChannelName = 'client_' + configUrlHash.toString()
-        if (type === 'registerComputeEngine') {
-            capability[clientChannelName] = ["history", "subscribe"] // order matters i think
+        let tokenDetails: any | null
+        const clientChannelName = 'client_' + configUriHash.toString()
+        const serverChannelName = 'server_' + configUriHash.toString()
+        if (!reportOnly) {
+            const capability = {}
+            
+            if (type === 'registerComputeEngine') {
+                capability[clientChannelName] = ["history", "subscribe"] // order matters i think
+            }
+            else if (type === 'registerClient') {
+                capability[clientChannelName] = ["publish"] // order matters i think
+            }
+
+            if (type === 'registerComputeEngine') {
+                capability[serverChannelName] = ["publish"] // order matters i think
+            }
+            else if (type === 'registerClient') {
+                capability[serverChannelName] = ["history", "subscribe"] // order matters i think
+                capability['register'] = ["history", "subscribe"] // order matters i think
+            }
+
+            tokenDetails = await requestAblyToken({ablyRestClient: ably, capability})
         }
-        else if (type === 'registerClient') {
-            capability[clientChannelName] = ["publish"] // order matters i think
+        else {
+            tokenDetails = null
         }
 
-        const serverChannelName = 'server_' + configUrlHash.toString()
         if (type === 'registerComputeEngine') {
-            capability[serverChannelName] = ["publish"] // order matters i think
+            const registerChannel = ably.channels.get('register')
+            // important to await because serverless may end before data is sent
+            await publishMessageAsync(registerChannel, {
+                type: unregister ? 'unregisterComputeEngine' : 'registerComputeEngine',
+                computeEngineConfigUri,
+                computeEngineConfig
+            })
         }
-        else if (type === 'registerClient') {
-            capability[serverChannelName] = ["history", "subscribe"] // order matters i think
-        }
-
-        const tokenDetails = await requestAblyToken({ablyRestClient: ably, capability})
         
         return {
             computeEngineConfig,

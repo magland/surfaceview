@@ -3,7 +3,7 @@ import GoogleObjectStorageClient, { GoogleObjectStorageClientOpts } from "./goog
 import KacheryObjectStorageClient, { KacheryObjectStorageClientOpts } from "./kachery/KacheryObjectStorageClient"
 
 export interface ObjectStorageClient {
-    getObjectData: (name: string) => Promise<ArrayBuffer | null>
+    getObjectData: (name: string, opts?: {cacheBust?: boolean}) => Promise<ArrayBuffer | null>
 }
 
 const createObjectStorageClient = (opts: {google?: GoogleObjectStorageClientOpts, kachery?: KacheryObjectStorageClientOpts, http?: HttpObjectStorageClientOpts}): ObjectStorageClient => {

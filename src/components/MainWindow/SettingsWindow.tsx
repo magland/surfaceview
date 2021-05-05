@@ -1,7 +1,10 @@
-import { Table, TableCell, TableRow } from '@material-ui/core';
+import { Button, IconButton, Table, TableCell, TableRow } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import React, { FunctionComponent } from 'react';
+import { Close } from '@material-ui/icons';
+import React, { FunctionComponent, useCallback } from 'react';
 import useComputeEngineClient, { useComputeEngineInterface } from '../../computeEngine/useComputeEngineClient';
+import useRegisteredComputeEngines from '../../computeEngine/useRegisteredComputeEngines';
+import SelectComputeEngine from './SelectComputeEngine';
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -20,16 +23,26 @@ const useStyles = makeStyles((theme) => ({
 
 type Props = {
     version?: string
+    onClose?: () => void
 }
 
-const SettingsWindow: FunctionComponent<Props> = ({ version }) => {
+const SettingsWindow: FunctionComponent<Props> = ({ version, onClose }) => {
     const classes = useStyles();
+    const registeredComputeEngines = useRegisteredComputeEngines()
     const computeEngineClient = useComputeEngineClient()
     const computeEngineInterface = useComputeEngineInterface()
+    const handleSelectComputeEngine = useCallback((uri: string) => {
+        computeEngineInterface.setComputeEngineConfigUri(uri)
+    }, [computeEngineInterface])
     return (
         <div className={classes.paper} style={{zIndex: 9999}}>
-            <h2>Surface view {version || ''}</h2>
-            <Table>
+            {
+                onClose && <IconButton onClick={onClose}><Close /></IconButton>
+            }
+            <SelectComputeEngine
+                onSelectComputeEngine={handleSelectComputeEngine}
+            />
+            {/* <Table>
                 <TableRow>
                     <TableCell>Compute engine</TableCell>
                     <TableCell>{computeEngineInterface.computeEngineConfigUri || ''}</TableCell>
@@ -38,7 +51,7 @@ const SettingsWindow: FunctionComponent<Props> = ({ version }) => {
                     <TableCell>Task manager</TableCell>
                     <TableCell>{computeEngineClient ? 'Initialized' : 'Not initialized'}</TableCell>
                 </TableRow>
-            </Table>
+            </Table> */}
         </div>
     )
 }
