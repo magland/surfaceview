@@ -29,6 +29,7 @@ const requestAblyToken = async (opts: {ablyRestClient: Ably.Rest, capability: an
                 reject(err)
                 return
             }
+            if (!result) throw Error('Unexpected')
             resolve(result)
         })
     })
